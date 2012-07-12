@@ -37,16 +37,19 @@ import org.apertium.Translator;
  * @author Mikel Artetxe
  */
 public class ApertiumCaffeine extends javax.swing.JFrame {
-    
+
     protected static final Preferences prefs = Preferences.userNodeForPackage(Translator.class);
-    
+
     private HashMap<String, String> titleToBase;
     private HashMap<String, String> titleToMode;
 
     /** Creates new form ApertiumCaffeine */
     public ApertiumCaffeine() {
         initComponents();
-        
+		}
+
+
+    public void init() {
         File packagesDir = null;
         String packagesPath = prefs.get("packagesPath", null);
         if (packagesPath != null) packagesDir = new File(packagesPath);
@@ -77,7 +80,7 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
                 System.exit(0);
             }
         }
-        
+
         initModes(packagesDir);
         if (modesComboBox.getItemCount() == 0 &&
                 JOptionPane.showConfirmDialog(null,
@@ -97,41 +100,41 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
                 Logger.getLogger(ApertiumCaffeine.class.getName()).log(Level.SEVERE, null, ex);
                 JOptionPane.showMessageDialog(null, ex, "Error", JOptionPane.ERROR_MESSAGE);
             }
-        
+
         int idx = prefs.getInt("modesComboBox", 0);
         if (idx < 0) idx = 0;
         if (idx < modesComboBox.getItemCount())
             modesComboBox.setSelectedIndex(idx);
-        
+
         boolean displayMarks = prefs.getBoolean("displayMarks", false);
         boolean displayAmbiguity = prefs.getBoolean("displayAmbiguity", false);
         displayMarksCheckBox.setSelected(displayMarks);
         displayAmbiguityCheckBox.setSelected(displayAmbiguity);
         Translator.setDisplayMarks(displayMarks);
         Translator.setDisplayAmbiguity(displayAmbiguity);
-        
+
         boolean wrap = prefs.getBoolean("wrapLines", true);
         inputTextArea.setLineWrap(wrap);
         inputTextArea.setWrapStyleWord(wrap);
         outputTextArea.setLineWrap(wrap);
         outputTextArea.setWrapStyleWord(wrap);
-        
+
         Translator.setCacheEnabled(true);
-        
+
         inputTextArea.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {update();}
             public void removeUpdate(DocumentEvent e) {update();}
             public void changedUpdate(DocumentEvent e) {update();}
         });
         inputTextArea.setText(prefs.get("inputText", ""));
-        
+
         int x = prefs.getInt("boundsX", -1);
         int y = prefs.getInt("boundsY", -1);
         int width = prefs.getInt("boundsWidth", -1);
         int height = prefs.getInt("boundsHeight", -1);
         if (height > 0 && width > 0) setBounds(x, y, width, height);
         else setLocationRelativeTo(null);
-        
+
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -145,7 +148,7 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
                 prefs.putInt("boundsHeight", getBounds().height);
             }
         });
-        
+
         if (prefs.getBoolean("checkUpdates", true))
             new Thread() {
                 @Override
@@ -163,7 +166,7 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
                 }
             }.start();
     }
-    
+
     private static final HighlightPainter redPainter = new DefaultHighlightPainter(Color.RED);
     private static final HighlightPainter orangePainter = new DefaultHighlightPainter(Color.ORANGE);
     private static final HighlightPainter greenPainter = new DefaultHighlightPainter(Color.GREEN);
@@ -214,7 +217,7 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
             }
         }).start();
     }
-    
+
     private void initModes(File packagesDir) {
         titleToBase = new HashMap<String, String>();
         titleToMode = new HashMap<String, String>();
@@ -237,7 +240,7 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
         Arrays.sort(titles);
         modesComboBox.setModel(new DefaultComboBoxModel(titles));
     }
-    
+
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -361,7 +364,7 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
         initModes(new File(prefs.get("packagesPath", null)));
         modesComboBox.setSelectedItem(currentMode);
         modesComboBox.setSelectedIndex(modesComboBox.getSelectedIndex());
-        
+
         boolean wrap = prefs.getBoolean("wrapLines", true);
         inputTextArea.setLineWrap(wrap);
         inputTextArea.setWrapStyleWord(wrap);
@@ -384,11 +387,11 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
         } catch (UnsupportedLookAndFeelException ex) {
             Logger.getLogger(ApertiumCaffeine.class.getName()).log(Level.SEVERE, null, ex);
         }*/
-        
+
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -412,7 +415,9 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
-                new ApertiumCaffeine().setVisible(true);
+                ApertiumCaffeine jframe = new ApertiumCaffeine();
+								jframe.setVisible(true);
+								jframe.init();
             }
         });
     }
