@@ -16,10 +16,12 @@ public class UpdateDialog extends InstallDialog {
     
     public UpdateDialog(Dialog parent, boolean modal) throws IOException {
         super(parent, modal);
+        selectAll();
     }
     
     public UpdateDialog(Frame parent, boolean modal) throws IOException {
         super(parent, modal);
+        selectAll();
     }
     
     @Override

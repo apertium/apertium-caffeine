@@ -12,6 +12,8 @@ package org.apertium.caffeine;
 
 import java.awt.Color;
 import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -25,7 +27,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
@@ -46,10 +52,68 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
     /** Creates new form ApertiumCaffeine */
     public ApertiumCaffeine() {
         initComponents();
-		}
-
+    }
 
     public void init() {
+        int x = prefs.getInt("boundsX", -1);
+        int y = prefs.getInt("boundsY", -1);
+        int width = prefs.getInt("boundsWidth", -1);
+        int height = prefs.getInt("boundsHeight", -1);
+        if (height > 0 && width > 0) setBounds(x, y, width, height);
+        else setLocationRelativeTo(null);
+        
+        // We create a popup menu for the input text area
+        JPopupMenu popup = new JPopupMenu();
+        JMenuItem item = new JMenuItem("Copy");
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                inputTextArea.copy();
+            }
+        });
+        popup.add(item);
+        item = new JMenuItem("Cut");
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                inputTextArea.cut();
+            }
+        });
+        popup.add(item);
+        item = new JMenuItem("Paste");
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                inputTextArea.paste();
+            }
+        });
+        popup.add(item);
+        popup.addSeparator();
+        item = new JMenuItem("Select all");
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                inputTextArea.selectAll();
+            }
+        });
+        popup.add(item);
+        inputTextArea.setComponentPopupMenu(popup);
+        
+        // We create a popup menu for the output text area
+        popup = new JPopupMenu();
+        item = new JMenuItem("Copy");
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                outputTextArea.copy();
+            }
+        });
+        popup.add(item);
+        popup.addSeparator();
+        item = new JMenuItem("Select all");
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                outputTextArea.selectAll();
+            }
+        });
+        popup.add(item);
+        outputTextArea.setComponentPopupMenu(popup);
+        
         File packagesDir = null;
         String packagesPath = prefs.get("packagesPath", null);
         if (packagesPath != null) packagesDir = new File(packagesPath);
@@ -127,13 +191,6 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
             public void changedUpdate(DocumentEvent e) {update();}
         });
         inputTextArea.setText(prefs.get("inputText", ""));
-
-        int x = prefs.getInt("boundsX", -1);
-        int y = prefs.getInt("boundsY", -1);
-        int width = prefs.getInt("boundsWidth", -1);
-        int height = prefs.getInt("boundsHeight", -1);
-        if (height > 0 && width > 0) setBounds(x, y, width, height);
-        else setLocationRelativeTo(null);
 
         this.addWindowListener(new WindowAdapter() {
             @Override
@@ -310,7 +367,7 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(modesComboBox, 0, 186, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(displayMarksCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(displayMarksCheckBox)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(displayAmbiguityCheckBox)
                         .addGap(18, 18, 18)
@@ -376,7 +433,7 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /*try {
+        try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ApertiumCaffeine.class.getName()).log(Level.SEVERE, null, ex);
@@ -386,14 +443,14 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
             Logger.getLogger(ApertiumCaffeine.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedLookAndFeelException ex) {
             Logger.getLogger(ApertiumCaffeine.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
+        }
 
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
-        try {
+        /*try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
@@ -408,7 +465,7 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(ApertiumCaffeine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(ApertiumCaffeine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
+        }*/
         //</editor-fold>
 
         /* Create and display the form */
@@ -416,8 +473,8 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
 
             public void run() {
                 ApertiumCaffeine jframe = new ApertiumCaffeine();
-								jframe.setVisible(true);
-								jframe.init();
+                jframe.setVisible(true);
+                jframe.init();
             }
         });
     }

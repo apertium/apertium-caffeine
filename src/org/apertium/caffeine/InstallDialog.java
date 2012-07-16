@@ -13,6 +13,10 @@ package org.apertium.caffeine;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,9 +30,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -112,6 +120,34 @@ public class InstallDialog extends javax.swing.JDialog {
                 }
             }
         });
+        final JPopupMenu popup = new JPopupMenu();
+        final JMenuItem menuItem = new JMenuItem();
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                table.getModel().setValueAt(!(Boolean)table.getModel().getValueAt(table.getSelectedRow(), 0), table.getSelectedRow(), 0);
+            }
+        });
+        popup.add(menuItem);
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) showPopup(e);
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) showPopup(e);
+            }
+            public void showPopup(MouseEvent e) {
+                int row = table.rowAtPoint(e.getPoint());
+                int column = table.columnAtPoint(e.getPoint());
+                if (!table.isRowSelected(row)) table.changeSelection(row, column, false, false);
+                boolean installed = (Boolean)tableContent[row][0];
+                boolean checked = (Boolean)table.getModel().getValueAt(row, 0);
+                menuItem.setText((installed == checked ? "Mark to " : "Unmark from ") + (installed ? STR_UNINSTALL : STR_INSTALL));
+                popup.show(table, e.getX(), e.getY());
+            }
+        });
     }
     
     protected void initStrings() {}
@@ -168,6 +204,11 @@ public class InstallDialog extends javax.swing.JDialog {
             else
                 tableContent[i][2] = "<html><i>Not installed</i></html>";
         }
+    }
+    
+    protected void selectAll() {
+        for (int i = 0; i < table.getModel().getRowCount(); i++)
+            table.setValueAt(true, i, 0);
     }
 
     /** This method is called from within the constructor to
@@ -252,6 +293,8 @@ public class InstallDialog extends javax.swing.JDialog {
         final JLabel message = new JLabel("Preparing...");
         final JProgressBar progress = new JProgressBar(0, 100);
         progress.setStringPainted(true);
+        ((JPanel)dialog.getContentPane()).setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        dialog.setLayout(new BorderLayout(5, 5));
         dialog.add(BorderLayout.NORTH, message);
         dialog.add(BorderLayout.CENTER, progress);
         dialog.setSize(300, 100);
