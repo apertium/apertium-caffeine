@@ -17,6 +17,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,7 +45,13 @@ import org.apertium.Translator;
  */
 public class ApertiumCaffeine extends javax.swing.JFrame {
 
-    protected static final Preferences prefs = Preferences.userNodeForPackage(Translator.class);
+    protected static final Preferences prefs = Preferences.userNodeForPackage(ApertiumCaffeine.class);
+    protected static final FilenameFilter filter = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.endsWith(".jar");
+        }
+    };
 
     private HashMap<String, String> titleToBase;
     private HashMap<String, String> titleToMode;
@@ -124,11 +131,12 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
                     + "First of all, we need to set the directory in which to install the\n"
                     + "language pair packages.\n"
                     + "You can either create the default directory (a folder called \n"
-                    + "\"Apertium packages\" in your home directory) or select a custom one.\n",
+                    + "\"Apertium Caffeine packages\" in your home directory) or select\n"
+                    + "a custom one.\n",
                     "Welcome to Apertium Caffeine!",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
             if (answer == 0) {
-                packagesDir = new File(new File(System.getProperty("user.home")), "Apertium packages");
+                packagesDir = new File(new File(System.getProperty("user.home")), "Apertium Caffeine packages");
                 packagesDir.mkdir();
                 prefs.put("packagesPath", packagesDir.getPath());
             } else if (answer == 1) {
@@ -278,7 +286,7 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
     private void initModes(File packagesDir) {
         titleToBase = new HashMap<String, String>();
         titleToMode = new HashMap<String, String>();
-        File packages[] = packagesDir.listFiles();
+        File packages[] = packagesDir.listFiles(filter);
         for (File p : packages) {
             try {
                 String base = p.getPath();

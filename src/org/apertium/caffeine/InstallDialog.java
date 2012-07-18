@@ -158,7 +158,7 @@ public class InstallDialog extends javax.swing.JDialog {
         updatablePackages = new ArrayList<String>();
         updatedPackages = new ArrayList<String>();
         packageToCode = new HashMap<String, String>();
-        ArrayList<String> installedPackagesCodes = new ArrayList<String>(Arrays.asList(new File(ApertiumCaffeine.prefs.get("packagesPath", null)).list()));
+        ArrayList<String> installedPackagesCodes = new ArrayList<String>(Arrays.asList(new File(ApertiumCaffeine.prefs.get("packagesPath", null)).list(ApertiumCaffeine.filter)));
         
         BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(REPO_URL).openStream()));
         String line, pattern = "<li><a href=\"|.jar\">|</a></li>";
@@ -299,7 +299,6 @@ public class InstallDialog extends javax.swing.JDialog {
         dialog.add(BorderLayout.CENTER, progress);
         dialog.setSize(300, 100);
         dialog.setLocationRelativeTo(this);
-        this.dispose();
         
         new Thread() {
             @Override
@@ -351,6 +350,7 @@ public class InstallDialog extends javax.swing.JDialog {
             }
         }.start();
         dialog.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
