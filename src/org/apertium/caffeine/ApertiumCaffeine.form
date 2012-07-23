@@ -28,11 +28,9 @@
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="outputScrollPane" alignment="0" pref="598" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="modesComboBox" pref="186" max="32767" attributes="0"/>
+                      <Component id="modesComboBox" pref="314" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="displayMarksCheckBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="displayAmbiguityCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="settingsButton" min="-2" pref="95" max="-2" attributes="0"/>
                   </Group>
@@ -50,7 +48,6 @@
                   <Component id="modesComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="settingsButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="displayMarksCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="displayAmbiguityCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="inputScrollPane" pref="176" max="32767" attributes="0"/>
@@ -78,14 +75,6 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="displayMarksCheckBoxActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JCheckBox" name="displayAmbiguityCheckBox">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Mark ambiguity"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="displayAmbiguityCheckBoxActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="settingsButton">

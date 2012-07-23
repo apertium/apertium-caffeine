@@ -203,12 +203,9 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
         if (idx < modesComboBox.getItemCount())
             modesComboBox.setSelectedIndex(idx);
 
-        boolean displayMarks = prefs.getBoolean("displayMarks", false);
-        boolean displayAmbiguity = prefs.getBoolean("displayAmbiguity", false);
+        boolean displayMarks = prefs.getBoolean("displayMarks", true);
         displayMarksCheckBox.setSelected(displayMarks);
-        displayAmbiguityCheckBox.setSelected(displayAmbiguity);
         Translator.setDisplayMarks(displayMarks);
-        Translator.setDisplayAmbiguity(displayAmbiguity);
 
         boolean wrap = prefs.getBoolean("wrapLines", true);
         inputTextArea.setLineWrap(wrap);
@@ -231,7 +228,6 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
                 prefs.put("inputText", inputTextArea.getText());
                 prefs.putInt("modesComboBox", modesComboBox.getSelectedIndex());
                 prefs.putBoolean("displayMarks", displayMarksCheckBox.isSelected());
-                prefs.putBoolean("displayAmbiguity", displayAmbiguityCheckBox.isSelected());
                 prefs.putInt("boundsX", getBounds().x);
                 prefs.putInt("boundsY", getBounds().y);
                 prefs.putInt("boundsWidth", getBounds().width);
@@ -257,9 +253,10 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
             }.start();
     }
 
+    private static final Pattern replacePattern = Pattern.compile("\\B(\\*|#|@)\\b");
+    private static final Pattern highlightPattern = Pattern.compile("\\B(\\*|#|@)(\\p{L}||\\p{N})*\\b");
     private static final HighlightPainter redPainter = new DefaultHighlightPainter(Color.RED);
     private static final HighlightPainter orangePainter = new DefaultHighlightPainter(Color.ORANGE);
-    private static final HighlightPainter greenPainter = new DefaultHighlightPainter(Color.GREEN);
     private boolean textChanged, translating;
     private void update() {
         if (modesComboBox.getSelectedIndex() == -1) return;
@@ -272,31 +269,15 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
                 while (textChanged) {
                     textChanged = false;
                     try {
-                        String translation = Translator.translate(inputTextArea.getText());
-                        boolean unknown = displayMarksCheckBox.isSelected();
-                        boolean ambiguity = displayAmbiguityCheckBox.isSelected();
-                        boolean highlight = prefs.getBoolean("highlightMarkedWords", true);
-                        boolean hide = prefs.getBoolean("hideMarks", true);
-                        if (highlight && (unknown || ambiguity)) {
-                            String pattern;
-                            if (unknown && ambiguity) pattern = "(\\*|#|@|=)";
-                            else if (unknown) pattern = "(\\*|#|@)";
-                            else pattern = "=";
-                            outputTextArea.setText(hide ? Pattern.compile("\\B" + pattern + "\\b").matcher(translation).replaceAll("") : translation);
+                        final String translation = Translator.translate(inputTextArea.getText());
+                        final boolean hide = prefs.getBoolean("hideMarks", true);
+                        if (displayMarksCheckBox.isSelected() && prefs.getBoolean("highlightMarkedWords", true)) {
                             int offset = 0;
-                            Matcher matcher = Pattern.compile("\\B" + pattern + "(\\p{L}||\\p{N})*\\b").matcher(translation);
-                            while (matcher.find()) {
-                                HighlightPainter painter = null;
-                                if (translation.charAt(matcher.start()) == '*')
-                                    painter = redPainter;
-                                else if (translation.charAt(matcher.start()) == '#')
-                                    painter = orangePainter;
-                                else if (translation.charAt(matcher.start()) == '@')
-                                    painter = orangePainter;
-                                else if (translation.charAt(matcher.start()) == '=')
-                                    painter = greenPainter;
-                                outputTextArea.getHighlighter().addHighlight(matcher.start() + (hide ? offset-- : offset), matcher.end() + offset, painter);
-                            }
+                            outputTextArea.setText(hide ? replacePattern.matcher(translation).replaceAll("") : translation);
+                            Matcher matcher = highlightPattern.matcher(translation);
+                            while (matcher.find()) outputTextArea.getHighlighter().addHighlight(
+                                    matcher.start() + (hide ? offset-- : offset), matcher.end() + offset,
+                                    translation.charAt(matcher.start()) == '*' ? redPainter : orangePainter);
                         } else outputTextArea.setText(translation);
                     } catch (Exception ex) {
                         Logger.getLogger(ApertiumCaffeine.class.getName()).log(Level.SEVERE, null, ex);
@@ -343,7 +324,6 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
 
         modesComboBox = new javax.swing.JComboBox();
         displayMarksCheckBox = new javax.swing.JCheckBox();
-        displayAmbiguityCheckBox = new javax.swing.JCheckBox();
         settingsButton = new javax.swing.JButton();
         inputScrollPane = new javax.swing.JScrollPane();
         inputTextArea = new javax.swing.JTextArea();
@@ -363,13 +343,6 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
         displayMarksCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 displayMarksCheckBoxActionPerformed(evt);
-            }
-        });
-
-        displayAmbiguityCheckBox.setText("Mark ambiguity");
-        displayAmbiguityCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                displayAmbiguityCheckBoxActionPerformed(evt);
             }
         });
 
@@ -398,11 +371,9 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(outputScrollPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(modesComboBox, 0, 186, Short.MAX_VALUE)
+                        .addComponent(modesComboBox, 0, 314, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(displayMarksCheckBox)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(displayAmbiguityCheckBox)
                         .addGap(18, 18, 18)
                         .addComponent(settingsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(inputScrollPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE))
@@ -415,8 +386,7 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(modesComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(settingsButton)
-                    .addComponent(displayMarksCheckBox)
-                    .addComponent(displayAmbiguityCheckBox))
+                    .addComponent(displayMarksCheckBox))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(inputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -442,14 +412,9 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
         update();
     }//GEN-LAST:event_displayMarksCheckBoxActionPerformed
 
-    private void displayAmbiguityCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_displayAmbiguityCheckBoxActionPerformed
-        Translator.setDisplayAmbiguity(displayAmbiguityCheckBox.isSelected());
-        update();
-    }//GEN-LAST:event_displayAmbiguityCheckBoxActionPerformed
-
     private void settingsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsButtonActionPerformed
         Object currentMode = modesComboBox.getSelectedItem();
-        ManageDialog md = new ManageDialog(this, true);
+        SettingsDialog md = new SettingsDialog(this, true);
         md.setVisible(true);
         initModes(new File(prefs.get("packagesPath", null)));
         modesComboBox.setSelectedItem(currentMode);
@@ -512,7 +477,6 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox displayAmbiguityCheckBox;
     private javax.swing.JCheckBox displayMarksCheckBox;
     private javax.swing.JScrollPane inputScrollPane;
     private javax.swing.JTextArea inputTextArea;
