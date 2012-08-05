@@ -57,7 +57,7 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
     protected static final FilenameFilter filter = new FilenameFilter() {
         @Override
         public boolean accept(File dir, String name) {
-            return name.matches("([a-z_]+-[a-z_]+(,[a-z_]+-[a-z_]+)*).jar|(apertium-[a-z_]+-[a-z_]+).jar");
+            return name.matches("apertium-[a-z][a-z][a-z]?-[a-z][a-z][a-z]?.jar");
         }
     };
 
@@ -128,6 +128,8 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
         });
         popup.add(item);
         outputTextArea.setComponentPopupMenu(popup);
+        
+        Translator.setParallelProcessingEnabled(false);
         
         File packagesDir = null;
         String packagesPath = prefs.get("packagesPath", null);
@@ -215,6 +217,7 @@ public class ApertiumCaffeine extends javax.swing.JFrame {
 
         Translator.setCacheEnabled(true);
 
+        inputTextArea.requestFocusInWindow();
         inputTextArea.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {update();}
             public void removeUpdate(DocumentEvent e) {update();}
